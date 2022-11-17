@@ -83,6 +83,11 @@ problem.addVariables(students2XR + students2CR, domain2yrC)
 
 problem.addConstraint(AllDifferentConstraint())
 
+# For troublemaking students
+    # For troublemaking and disabled students
+        #if they are not the same then the seat of the student cannot be a neighbour of the other troublemaker or disabled
+
+
 for st1 in studentsXR+studentsCR:
     for st2 in studentsXR+studentsCR:
         if st1 != st2:
