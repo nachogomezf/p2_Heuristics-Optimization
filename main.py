@@ -9,7 +9,7 @@ students = [elem.split(',') for elem in lines]
 # VARS -> STUDENTS
 # DOMAIN -> SEATS
 
-frontseats = np.array(
+backseats = np.array(
     [
     [29,25,21,17],
     [30, 26, 22, 18],
@@ -17,7 +17,7 @@ frontseats = np.array(
     [32, 28, 24, 20]
     ]
 )
-backseats = np.array(
+frontseats = np.array(
     [
         [13, 9, 5, 1],
         [14, 10, 6, 2],
@@ -25,16 +25,16 @@ backseats = np.array(
         [16, 12, 8, 4]
     ]
 )
-reducedmob1 = np.array(
-    [
-    [13, 1],
-    [14, 2],
-    [15, 3],
-    [16, 4]
-]
-)
+reducedmob1 = (np.array ([[1, 2, 3, 4]])).T
+reducedmob2 = (np.array ([[13, 14, 15, 16]])).T
+reducedmob3 = (np.array ([[17, 18, 19, 20]])).T
+bus = np.hstack(( backseats, frontseats))
+mirrorbus = np.ones((4,8), int)
+for j in range (1,8):
+    mirrorbus[:, j-1] = bus[:,-j]
+mirrorbus[:, 7] = bus[:, 0]
 
-reducedmob2 = (np.array ([17, 18, 19, 20])).T
+print(mirrorbus)
 def neighbors(A, a, b):
     return [A[i][j] for i in range(a-1, a+2) for j in range(b-1, b+2) if i > -1 and j > -1 and j < len(A[0]) and i < len(A)]
  
@@ -83,13 +83,25 @@ problem.addVariables(students2XR + students2CR, domain2yrC)
 
 problem.addConstraint(AllDifferentConstraint())
 
-for st1 in students1XR+students1CR:
-    for st2 in students1XR+students1CR:
+for st1 in studentsXR+studentsCR:
+    for st2 in studentsXR+studentsCR:
         if st1 != st2:
             problem.addConstraint(
                                 lambda seat1, seat2: seat1 != seat2+1 and seat1 != seat2-1,
                                 (st1, st2)
                                  ) #next seat to reduced mobility must be free
+
+# TODO
+# define seatToPos function: converts a given seat into the corresponding entry of the matrix bus (ormirrorbus)
+
+'''for stC in studentsCR + studentsCX: #troublesome students
+    for st2 in studentsCR + studentsCX + studentsXR: #troublesome and disabled students
+        if stC != st2:
+            problem.addConstraint(
+                lambda seat1, seat2:
+                    for elem in neighbors(mirrorbus, seatToPos):
+                        elem
+            )'''
 
 print(problem.getSolution())
 
