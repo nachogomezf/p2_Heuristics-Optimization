@@ -34,10 +34,10 @@ for j in range (1,8):
     mirrorbus[:, j-1] = bus[:,-j]
 mirrorbus[:, 7] = bus[:, 0]
 
-print(mirrorbus)
 def neighbors(A, a, b):
-    return [A[i][j] for i in range(a-1, a+2) for j in range(b-1, b+2) if i > -1 and j > -1 and j < len(A[0]) and i < len(A)]
- 
+    res = [A[i][j] for i in range(a-1, a+2) for j in range(b-1, b+2) if i > -1 and j > -1 and j < len(A[0]) and i < len(A)]
+    res.remove(A[a][b])
+    return res
 seats = np.hstack((frontseats, backseats))
 
 domain1yr = [i for i in range(5,13)]
@@ -69,9 +69,6 @@ students2CX = [st[0] for st in students if st[1] == '2' and st[2] == 'C' and st[
 students2XR = [st[0] for st in students if st[1] == '2' and st[2] == 'X' and st[3] == 'R']
 students2CR = [st[0] for st in students if st[1] == '2' and st[2] == 'C' and st[3] == 'R']
 
-print("First year domain:",  domain1yr, "Second year domain:", domain2yr)
-print("First year students: ", students1yr, "Second year students: ", students2yr)
-
 
 problem = Problem()
 problem.addVariables(students1XX + students1CX, domain1yr)
@@ -87,6 +84,26 @@ problem.addConstraint(AllDifferentConstraint())
     # For troublemaking and disabled students
         #if they are not the same then the seat of the student cannot be a neighbour of the other troublemaker or disabled
 
+def areSiblings(st1, st2):
+    for stn in range(students):
+        if students[stn] == st1:
+            if students[stn][4] == st2:
+                return True
+    return False
+
+def assignSibling(st1, st2):
+    if areSiblings(st1, st2):
+        if st1 in students2yr and st2 in students1yr:
+            problem.addConstraint(lambda seat1, seat2: 
+                                     seat1 == seat2 and seat1 <=16 and seat2 <= 16 and seat)
+        if st2 in students1yr and st1 in students2yr:
+
+
+        else:
+
+
+
+
 
 for st1 in studentsXR+studentsCR:
     for st2 in studentsXR+studentsCR:
@@ -96,17 +113,27 @@ for st1 in studentsXR+studentsCR:
                                 (st1, st2)
                                  ) #next seat to reduced mobility must be free
 
-# TODO
-# define seatToPos function: converts a given seat into the corresponding entry of the matrix bus (ormirrorbus)
 
-'''for stC in studentsCR + studentsCX: #troublesome students
+
+
+def seatPos(seat):
+    res = []
+    for elem in np.where(bus == seat):
+        res.append(elem[0])
+    return res
+
+print(neighbors(bus, seatPos(30)[0], seatPos(30)[1]))
+
+def f1(seat1, seat2): 
+    for elem in neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1]):    
+        elem != seat2
+
+for stC in studentsCR + studentsCX: #troublesome students
     for st2 in studentsCR + studentsCX + studentsXR: #troublesome and disabled students
         if stC != st2:
             problem.addConstraint(
-                lambda seat1, seat2:
-                    for elem in neighbors(mirrorbus, seatToPos):
-                        elem
-            )'''
+            f1, (stC, st2)
+            )
 
 print(problem.getSolution())
 
@@ -114,4 +141,13 @@ print(problem.getSolution())
 for i, elem in enumerate(vars):
     problem.addVariables(elem, str(domains[(i-1)*32:i*32]))'''
 
+'''If two students are siblings they must be seated next to each other. For example, siblings could sit on seats
+5 and 6 but not on 6 and 7 (since they would be separated by the aisle).
+If siblings are on different years, then an exception would be made to the previous rule (front for first year, back for second year):
+both would be placed in the front, and the older brother has to be assigned the seat closer to the aisle. 
+If both brothers are troublesome they still have to sit together, but rules regarding other troublesome students
+still apply. If one sibling has reduced mobility they do not have to be seated together, but they still have
+to be seated in the same section (front or back, depending on the case and following previous rules).
+'''
 
+for s
