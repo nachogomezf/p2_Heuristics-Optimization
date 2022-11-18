@@ -93,13 +93,17 @@ def areSiblings(st1, st2):
 
 def assignSibling(st1, st2):
     if areSiblings(st1, st2):
-        if st1 in students2yr and st2 in students1yr:
-            problem.addConstraint(lambda seat1, seat2: 
-                                     seat1 == seat2 and seat1 <=16 and seat2 <= 16 and seat)
-        if st2 in students1yr and st1 in students2yr:
-
+        if st1 in students1yr or st2 in students1yr:
+            problem.addConstraint(
+                                    lambda seat1, seat2: seat1 <=16 and seat2 <= 16 and (seat2 = seat1 + 1 if ((seat1 mod 4 == 1) or (seat1 mod 4 == 3)) else seat2 = seat1 - 1),
+                                    (st1, st2)
+            )
 
         else:
+            problem.addConstraint(
+                                    lambda seat1, seat2: seat1 > 16 and seat2 > 16 and (seat2 = seat1 + 1 if ((seat1 mod 4 == 1) or (seat1 mod 4 == 3)) else seat2 = seat1 - 1),
+                                    (st1, st2)
+            )
 
 
 
