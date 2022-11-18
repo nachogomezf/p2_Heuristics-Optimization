@@ -95,13 +95,13 @@ def assignSibling(st1, st2):
     if areSiblings(st1, st2):
         if st1 in students1yr or st2 in students1yr:
             problem.addConstraint(
-                                    lambda seat1, seat2: seat1 <=16 and seat2 <= 16 and (seat2 = seat1 + 1 if ((seat1 mod 4 == 1) or (seat1 mod 4 == 3)) else seat2 = seat1 - 1),
+                                    lambda seat1, seat2: seat1 <=16 and seat2 <= 16 and (seat2 == seat1 + 1 if ((seat1 % 4 == 1) or (seat1 % 4 == 3)) else seat2 == seat1 - 1),
                                     (st1, st2)
             )
 
         else:
             problem.addConstraint(
-                                    lambda seat1, seat2: seat1 > 16 and seat2 > 16 and (seat2 = seat1 + 1 if ((seat1 mod 4 == 1) or (seat1 mod 4 == 3)) else seat2 = seat1 - 1),
+                                    lambda seat1, seat2: seat1 > 16 and seat2 > 16 and (seat2 == seat1 + 1 if ((seat1 % 4 == 1) or (seat1 % 4 == 3)) else seat2 == seat1 - 1),
                                     (st1, st2)
             )
 
@@ -153,5 +153,3 @@ If both brothers are troublesome they still have to sit together, but rules rega
 still apply. If one sibling has reduced mobility they do not have to be seated together, but they still have
 to be seated in the same section (front or back, depending on the case and following previous rules).
 '''
-
-for s
