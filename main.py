@@ -28,17 +28,24 @@ frontseats = np.array(
 reducedmob1 = (np.array ([[1, 2, 3, 4]])).T
 reducedmob2 = (np.array ([[13, 14, 15, 16]])).T
 reducedmob3 = (np.array ([[17, 18, 19, 20]])).T
+
 bus = np.hstack(( backseats, frontseats))
-mirrorbus = np.ones((4,8), int)
-for j in range (1,8):
-    mirrorbus[:, j-1] = bus[:,-j]
-mirrorbus[:, 7] = bus[:, 0]
+
+
+def removeFrom(l: list, elems: list):
+    return [e for e in l if e not in elems]
 
 def neighbors(A, a, b):
     res = [A[i][j] for i in range(a-1, a+2) for j in range(b-1, b+2) if i > -1 and j > -1 and j < len(A[0]) and i < len(A)]
     res.remove(A[a][b])
     return res
-seats = np.hstack((frontseats, backseats))
+
+def studentAt(list, val):
+    for index, st in enumerate(list):
+        if st[0] == val:
+            return index
+
+fulldomain = [i for i in range(1,33)]
 
 domain1yr = [i for i in range(5,13)]
 domain1yrwithC = [i for i in range(1,17)]
@@ -48,31 +55,39 @@ domain2yr = [i for i in range(21,33)]
 domain1yrC = [i for i in range(1,5)] + [i for i in range(13,17)]
 
 
-
 allstudents = [st[0] for st in students]
 
 students1yr = [st[0] for st in students if st[1] == '1']
 students2yr = [st[0] for st in students if st[1] == '2']
 
-studentsCX = [st[0] for st in students if st[2] == 'C' and st[3] == 'X']
-studentsCR = [st[0] for st in students if st[2] == 'C' and st[3] == 'R']
-studentsXR = [st[0] for st in students if st[2] == 'X' and st[3] == 'R']
-studentsXX =  [st[0] for st in students if st[2] == 'X' and st[3] == 'X']
+siblings12yr = [[st[0], st[4]] for st in students if st[1] == '1' and st[4] in students2yr]
+siblings12yr = sum(siblings12yr, [])
+studentsNoSiblings = [st for st in students if st[0] not in siblings12yr]
 
-students1XX = [st[0] for st in students if st[1] == '1' and st[2] == 'X' and st[3] == 'X']
-students1CX = [st[0] for st in students if st[1] == '1' and st[2] == 'C' and st[3] == 'X']
-students1XR = [st[0] for st in students if st[1] == '1' and st[2] == 'X' and st[3] == 'R']
-students1CR = [st[0] for st in students if st[1] == '1' and st[2] == 'C' and st[3] == 'R']
+students1yr = removeFrom(students1yr, siblings12yr)
+students2yr = removeFrom(students2yr, siblings12yr)
 
-students2XX = [st[0] for st in students if st[1] == '2' and st[2] == 'X' and st[3] == 'X']
-students2CX = [st[0] for st in students if st[1] == '2' and st[2] == 'C' and st[3] == 'X']
-students2XR = [st[0] for st in students if st[1] == '2' and st[2] == 'X' and st[3] == 'R']
-students2CR = [st[0] for st in students if st[1] == '2' and st[2] == 'C' and st[3] == 'R']
+studentsCX = [st[0] for st in studentsNoSiblings if st[2] == 'C' and st[3] == 'X']
+studentsCR = [st[0] for st in studentsNoSiblings if st[2] == 'C' and st[3] == 'R']
+studentsXR = [st[0] for st in studentsNoSiblings if st[2] == 'X' and st[3] == 'R']
+studentsXX =  [st[0] for st in studentsNoSiblings if st[2] == 'X' and st[3] == 'X']
+
+students1XX = [st[0] for st in studentsNoSiblings if st[1] == '1' and st[2] == 'X' and st[3] == 'X']
+students1CX = [st[0] for st in studentsNoSiblings if st[1] == '1' and st[2] == 'C' and st[3] == 'X']
+students1XR = [st[0] for st in studentsNoSiblings if st[1] == '1' and st[2] == 'X' and st[3] == 'R']
+students1CR = [st[0] for st in studentsNoSiblings if st[1] == '1' and st[2] == 'C' and st[3] == 'R']
+
+students2XX = [st[0] for st in studentsNoSiblings if st[1] == '2' and st[2] == 'X' and st[3] == 'X']
+students2CX = [st[0] for st in studentsNoSiblings if st[1] == '2' and st[2] == 'C' and st[3] == 'X']
+students2XR = [st[0] for st in studentsNoSiblings if st[1] == '2' and st[2] == 'X' and st[3] == 'R']
+students2CR = [st[0] for st in studentsNoSiblings if st[1] == '2' and st[2] == 'C' and st[3] == 'R']
+
 
 
 problem = Problem()
-problem.addVariables(students1XX + students1CX, domain1yr)
-problem.addVariables(students2XX + students2CX, domain2yr)
+problem.addVariables(siblings12yr, domain1yrwithC)
+problem.addVariables(students1XX + students1CX, domain1yrwithC)
+problem.addVariables(students2XX + students2CX, domain2yrC + domain2yr)
 problem.addVariables(students1XR + students1CR, domain1yrC)
 problem.addVariables(students2XR + students2CR, domain2yrC)
 
@@ -85,28 +100,20 @@ problem.addConstraint(AllDifferentConstraint())
         #if they are not the same then the seat of the student cannot be a neighbour of the other troublemaker or disabled
 
 def areSiblings(st1, st2):
-    for stn in range(students):
-        if students[stn] == st1:
-            if students[stn][4] == st2:
+    for st in students:
+        if st[0] == st1:
+            if st[4] == st2:
                 return True
     return False
+siblings= [[st[0], st[4]] for st in students if st[4] > '0' and st[0] <= students[studentAt(students, st[4])][0] ]
 
-def assignSibling(st1, st2):
-    if areSiblings(st1, st2):
-        if st1 in students1yr or st2 in students1yr:
-            problem.addConstraint(
-                                    lambda seat1, seat2: seat1 <=16 and seat2 <= 16 and (seat2 == seat1 + 1 if ((seat1 % 4 == 1) or (seat1 % 4 == 3)) else seat2 == seat1 - 1),
-                                    (st1, st2)
-            )
+print(siblings)
 
-        else:
-            problem.addConstraint(
-                                    lambda seat1, seat2: seat1 > 16 and seat2 > 16 and (seat2 == seat1 + 1 if ((seat1 % 4 == 1) or (seat1 % 4 == 3)) else seat2 == seat1 - 1),
-                                    (st1, st2)
-            )
-
-
-
+for pair in siblings: 
+    problem.addConstraint(
+        lambda young, old: (young % 4 == 1 and old == young+1) or (young % 4 == 0 and young == old +1),
+        (pair[0], pair[1])
+    )
 
 
 for st1 in studentsXR+studentsCR:
@@ -126,11 +133,10 @@ def seatPos(seat):
         res.append(elem[0])
     return res
 
-print(neighbors(bus, seatPos(30)[0], seatPos(30)[1]))
 
 def f1(seat1, seat2): 
     for elem in neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1]):    
-        elem != seat2
+        if elem != seat2: return True
 
 for stC in studentsCR + studentsCX: #troublesome students
     for st2 in studentsCR + studentsCX + studentsXR: #troublesome and disabled students
@@ -139,11 +145,10 @@ for stC in studentsCR + studentsCX: #troublesome students
             f1, (stC, st2)
             )
 
+print(neighbors(bus, seatPos(20)[0], seatPos(20)[1]))
+
 print(problem.getSolution())
 
-'''
-for i, elem in enumerate(vars):
-    problem.addVariables(elem, str(domains[(i-1)*32:i*32]))'''
 
 '''If two students are siblings they must be seated next to each other. For example, siblings could sit on seats
 5 and 6 but not on 6 and 7 (since they would be separated by the aisle).
