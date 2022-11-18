@@ -67,10 +67,10 @@ studentsNoSiblings = [st for st in students if st[0] not in siblings12yr]
 students1yr = removeFrom(students1yr, siblings12yr)
 students2yr = removeFrom(students2yr, siblings12yr)
 
-studentsCX = [st[0] for st in studentsNoSiblings if st[2] == 'C' and st[3] == 'X']
-studentsCR = [st[0] for st in studentsNoSiblings if st[2] == 'C' and st[3] == 'R']
-studentsXR = [st[0] for st in studentsNoSiblings if st[2] == 'X' and st[3] == 'R']
-studentsXX =  [st[0] for st in studentsNoSiblings if st[2] == 'X' and st[3] == 'X']
+studentsCX = [st[0] for st in students if st[2] == 'C' and st[3] == 'X']
+studentsCR = [st[0] for st in students if st[2] == 'C' and st[3] == 'R']
+studentsXR = [st[0] for st in students if st[2] == 'X' and st[3] == 'R']
+studentsXX =  [st[0] for st in students if st[2] == 'X' and st[3] == 'X']
 
 students1XX = [st[0] for st in studentsNoSiblings if st[1] == '1' and st[2] == 'X' and st[3] == 'X']
 students1CX = [st[0] for st in studentsNoSiblings if st[1] == '1' and st[2] == 'C' and st[3] == 'X']
@@ -107,7 +107,6 @@ def areSiblings(st1, st2):
     return False
 siblings= [[st[0], st[4]] for st in students if st[4] > '0' and st[0] <= students[studentAt(students, st[4])][0] ]
 
-print(siblings)
 
 for pair in siblings: 
     problem.addConstraint(
@@ -122,7 +121,7 @@ for st1 in studentsXR+studentsCR:
             problem.addConstraint(
                                 lambda seat1, seat2: seat1 != seat2+1 and seat1 != seat2-1,
                                 (st1, st2)
-                                 ) #next seat to reduced mobility must be free
+                                ) #next seat to reduced mobility must be free
 
 
 
@@ -133,19 +132,19 @@ def seatPos(seat):
         res.append(elem[0])
     return res
 
-
-def f1(seat1, seat2): 
-    for elem in neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1]):    
-        if elem != seat2: return True
+def trouble(seat1, seat2):
+    print("a", seat1, seat2)
+    if seat2 not in neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1]):
+        print(seat1, neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1]), seat2)
+        return True
 
 for stC in studentsCR + studentsCX: #troublesome students
     for st2 in studentsCR + studentsCX + studentsXR: #troublesome and disabled students
         if stC != st2:
             problem.addConstraint(
-            f1, (stC, st2)
+            trouble
+            ,(stC, st2)
             )
-
-print(neighbors(bus, seatPos(20)[0], seatPos(20)[1]))
 
 print(problem.getSolution())
 
