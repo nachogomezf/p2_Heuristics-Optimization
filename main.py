@@ -136,16 +136,13 @@ for sib in siblings.items():
 
 def redMob(seat1, seat2):
     if seat1 % 4 == 1 or seat1 % 4 == 3:
-        print('1',seat1, seat2)
         if seat2 != seat1 + 1: return True
     else:
-        print('2', seat1, seat2)
         if seat1 != seat2 + 1: return True
 
 for st1 in studentsXR+studentsCR:
     for st2 in allstudents:
         if st1 != st2:
-            print(st1, st2)
             problem.addConstraint(
                                 redMob,
                                 (st1, st2)
@@ -155,9 +152,10 @@ for st1 in studentsXR+studentsCR:
 #TROUBLESOME STUDENTS RESTRICTION
 
 
+
 for stC in studentsCR + studentsCX: #troublesome students
     for st2 in studentsCR + studentsCX + studentsXR: #troublesome and disabled students
-        if stC != st2 and not areSiblings(stC, st2):
+        if stC != st2  and not areSiblings(stC, st2):
             problem.addConstraint(
             lambda seat1, seat2: seat2 not in neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1])
             ,(stC, st2)
