@@ -1,9 +1,15 @@
 from constraint import *
-import re
+import os
 import numpy as np
+import sys
 
-lines = open('students2.txt', 'r').read().splitlines()
+NUMSEATS = 32
+lines = open(sys.argv[1], 'r').read().splitlines()
 students = [elem.split(',') for elem in lines]
+
+if len(students) > NUMSEATS :
+    print("ERROR: Max capacity is: {}".format(NUMSEATS))
+    exit()
 
 # VARS -> STUDENTS
 # DOMAIN -> SEATS
@@ -163,4 +169,17 @@ for stC in studentsCR + studentsCX: #troublesome students
 
 #What happens if one is brother is troubled and the other is disabled??? Se sientan juntos con esta version... not sure si esta bien
 
-print(problem.getSolution())
+
+
+sol = problem.getSolution()
+sols = problem.getSolutions()
+
+def sorted_dict(sol): return { sorted(sol.items(), key=lambda item: item[1]) } 
+    
+def formatSol(sol): return sorted_dict({str(st + studentsDict[st][2] + studentsDict[st][3]) : sol[st] for st in sol})
+
+output = open(os.path.splitext(sys.argv[1])[0] + '.output', 'w')
+output.write("Number of solutions: {}\n".format(len(sols)))
+
+for i in range(5):
+    if i <= len(sols): output.write(str(formatSol(sols[i])) + '\n')
