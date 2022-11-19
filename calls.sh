@@ -1,9 +1,0 @@
-python3 CSPBusSeats.py CSP-tests/students_7disabled.txt
-python3 CSPBusSeats.py CSP-tests/students_nodisabled.txt
-python3 CSPBusSeats.py CSP-tests/students_tests.txt
-python3 CSPBusSeats.py CSP-tests/students.txt
-python3 CSPBusSeats.py CSP-tests/students2.output
-python3 CSPBusSeats.py CSP-tests/students2.txt
-python3 CSPBusSeats.py CSP-tests/test16siblings.txt
-python3 CSPBusSeats.py CSP-tests/test32normal.txt
-python3 CSPBusSeats.py CSP-tests/test33students.txt
