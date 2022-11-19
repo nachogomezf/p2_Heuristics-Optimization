@@ -65,11 +65,19 @@ domain2yrC = [i for i in range(17,21)]
 domain2yr = [i for i in range(21,33)]
 domain1yrC = [i for i in range(1,5)] + [i for i in range(13,17)]
 
+
+
 studentsDict = {st[0] : st for st in students}
-allstudents = [st[0] for st in students]
 
 students1yr = [st[0] for st in students if st[1] == '1']
 students2yr = [st[0] for st in students if st[1] == '2']
+
+for index, st in enumerate(students):
+    if st[1] == '2' and st[4] in students1yr:
+        students[index][1] = '1'
+        #change the second year to student to be first year internally if they are siblings from different years
+
+allstudents = [st[0] for st in students]
 
 '''siblings12R = [[st[0] , st[4]] for st in students if st[1] == '1' and st[4] in students2yr and (st[3] == 'R' or studentsDict[st[4]][3] == 'R')]
 siblings12yr = [[st[0], st[4]] for st in students if st[1] == '1' and st[4] in students2yr and st[3] != 'R' and studentsDict[st[4]][3] != 'R']
@@ -85,11 +93,8 @@ students2yr = removeFrom(students2yr, siblings12R)
 students2yr = removeFrom(students2yr, siblings12yr)
 '''
 
-for index, st in enumerate(students):
-    if st[1] == '2' and st[4] in students1yr:
-        students[index][1] = '1'
-        #change the second year to student to be first year internally if they are siblings from different years
-print(students)
+
+
 studentsCX = [st[0] for st in students if st[2] == 'C' and st[3] == 'X']
 studentsCR = [st[0] for st in students if st[2] == 'C' and st[3] == 'R']
 studentsXR = [st[0] for st in students if st[2] == 'X' and st[3] == 'R']
@@ -128,27 +133,32 @@ for sib in siblings.items():
 
 #REDUCED MOBILITY RESTRICTION
 
+def redMob(seat1, seat2):
+    if seat1 % 4 == 1 or seat1 % 4 == 3:
+        print('1',seat1, seat2)
+        if seat2 != seat1 + 1: return True
+    else:
+        print('2', seat1, seat2)
+        if seat1 != seat2 + 1: return True
+
 for st1 in studentsXR+studentsCR:
     for st2 in studentsXR+studentsCR:
         if st1 != st2:
+            if (st1 == '3'): print(st1, st2)
             problem.addConstraint(
-                                lambda seat1, seat2: seat1 != seat2+1 and seat1 != seat2-1,
+                                redMob,
                                 (st1, st2)
                                 ) #next seat to reduced mobility must be free
 
 
 #TROUBLESOME STUDENTS RESTRICTION
 
-def trouble(seat1, seat2):
-    if seat2 not in neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1]):
-        print(seat1, neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1]), seat2)
-        return True
 
 for stC in studentsCR + studentsCX: #troublesome students
     for st2 in studentsCR + studentsCX + studentsXR: #troublesome and disabled students
         if stC != st2 and not areSiblings(stC, st2):
             problem.addConstraint(
-            trouble
+            lambda seat1, seat2: seat2 not in neighbors(bus, seatPos(seat1)[0], seatPos(seat1)[1])
             ,(stC, st2)
             )
 
