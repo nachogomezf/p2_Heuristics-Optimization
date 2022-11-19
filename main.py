@@ -126,10 +126,11 @@ siblings = {st[0] : st[4] for st in students if st[4] > '0' and st[0] <= student
 
 # SIBLINGS RESTRICTION
 for sib in siblings.items(): 
-    problem.addConstraint(
-        lambda young, old: (young % 4 == 1 and old == young+1) or (young % 4 == 0 and young == old +1),
-        (sib[0], sib[1])
-    )
+    if studentsDict[sib[0]][3] != 'R' and studentsDict[sib[1]][3] != 'R':
+        problem.addConstraint(
+            lambda young, old: (young % 4 == 1 and old == young+1) or (young % 4 == 0 and young == old +1),
+            (sib[0], sib[1])
+        )
 
 #REDUCED MOBILITY RESTRICTION
 
@@ -142,9 +143,9 @@ def redMob(seat1, seat2):
         if seat1 != seat2 + 1: return True
 
 for st1 in studentsXR+studentsCR:
-    for st2 in studentsXR+studentsCR:
+    for st2 in allstudents:
         if st1 != st2:
-            if (st1 == '3'): print(st1, st2)
+            print(st1, st2)
             problem.addConstraint(
                                 redMob,
                                 (st1, st2)
