@@ -16,31 +16,14 @@ if len(students) > NUMSEATS :
 # VARS -> STUDENTS
 # DOMAIN -> SEATS
 
-backseats = np.array(
+bus = np.array(
     [
-    [29,25,21,17],
-    [30, 26, 22, 18],
-    [31, 27, 23, 19],
-    [32, 28, 24, 20]
+    [29, 25, 21, 17, 13, 9, 5, 1],
+    [30, 26, 22, 18, 14, 10, 6, 2],
+    [31, 27, 23, 19, 15, 11, 7, 3],
+    [32, 28, 24, 20, 16, 12, 8, 4]
     ]
 )
-frontseats = np.array(
-    [
-        [13, 9, 5, 1],
-        [14, 10, 6, 2],
-        [15, 11, 7, 3],
-        [16, 12, 8, 4]
-    ]
-)
-reducedmob1 = (np.array ([[1, 2, 3, 4]])).T
-reducedmob2 = (np.array ([[13, 14, 15, 16]])).T
-reducedmob3 = (np.array ([[17, 18, 19, 20]])).T
-
-bus = np.hstack(( backseats, frontseats))
-
-#function to remove an elem from a list
-def removeFrom(l: list, elems: list):
-    return [e for e in l if e not in elems]
 
 #function that returns the collindant elements of a matrix given the entry (a,b). Needed for troublesome students restriction
 def neighbors(A, a, b):
@@ -55,7 +38,7 @@ def areSiblings(st1, st2):
             return True
         else: return False
 
-#function that returns the position of a seat in the bus in matrix form (i,j)
+#function that returns the position of a seat in the bus in matrix entry format (i,j) (necessary to pass it to neighbors function as argument)
 def seatPos(seat):
     res = []
     for elem in np.where(bus == seat):
@@ -78,10 +61,15 @@ studentsDict = {st[0] : st for st in students}
 students1yr = [st[0] for st in students if st[1] == '1']
 students2yr = [st[0] for st in students if st[1] == '2']
 
+oldBrothers = []
+youngBrothers = []
 for index, st in enumerate(students):
     if st[1] == '2' and st[4] in students1yr:
         students[index][1] = '1'
-        #if the siblings are from different years, change the second year to be first internally as both will go in the front
+        oldBrothers.append(st[0])
+        youngBrothers.append(st[4])
+        #if the siblings are from different years, change the second year to be first year too internally as both will go in the front
+        # As we are losing the info about who is older, we save it into the aux list oldBrothers in order to know later who to place in the aisle
 
 allstudents = [st[0] for st in students]
     
@@ -113,30 +101,44 @@ problem.addVariables(students2XR + students2CR, domain2yrC)
 problem.addConstraint(AllDifferentConstraint())
 
 # Dictionary of siblings, with the key being the younger brother always and the value the older
-siblings = {st[0] : st[4] for st in students if st[4] > '0' and st[0] <= studentsDict[st[4]][0]}
+siblings = {}
 
+for st in students: 
+    # If brothers are truly from the same year, add one pair of siblings to the dict 
+    # (arbitrarily choose the pair with the key being associated to student with lower id)
+    if st[0] not in oldBrothers and st[0] not in youngBrothers and st[0] < st[4]:
+        print(st[0], st[4])
+        print('a')
+        siblings[st[0]] = st[4]
+    else:
+    # Else, if brothers were from different years, assign the younger as key so that we can identify later who to assign the window and aisle
+        if st[0] in youngBrothers: 
+            print('b')
+            siblings[st[0]] = st[4]
+
+print(siblings)
 # SIBLINGS RESTRICTION
 
 for sib in siblings.items(): 
-#   We need to check that none of the siblings are handicapped, since if one or both them are, they needn't be seated together
+#   We need to check that none of the siblings are handicapped, since if one or both of them are, they cannot be seated together
     if studentsDict[sib[0]][3] != 'R' and studentsDict[sib[1]][3] != 'R':
         problem.addConstraint(
             lambda young, old: (young % 4 == 1 and old == young+1) or (young % 4 == 0 and young == old +1),
-            # mod 4 == 1 means driver window, therefore the old sibling's seat will be 1 unit bigger
-            # mod 4 == 0 means the other window, therefore the old sibling's seat will be 1 unit lesser
+            # mod 4 == 1 means the seat is aligned with driver's window, therefore the old sibling's seat will be 1 unit bigger for it to be aisle
+            # mod 4 == 0 means the other window, therefore the old sibling's seat will be 1 unit lesser for it to be aisle
             (sib[0], sib[1])
         )
 
 #REDUCED MOBILITY RESTRICTION
 
 def redMob(seat1, seat2):
-    if seat1 % 4 == 1 or seat1 % 4 == 3: # window seat
+    if seat1 % 4 == 1 or seat1 % 4 == 3: # odd seats
         if seat2 != seat1 + 1: return True
-    else:                                # (aisle seat)
+    else:                                # even seats
         if seat1 != seat2 + 1: return True
 
 for st1 in studentsXR+studentsCR: # iterate through the disabled students
-    for st2 in allstudents: # iterate through all students so that they cannot seat next to the st1
+    for st2 in allstudents: # iterate through all students so that they cannot seat next to the reduced mobility student
         if st1 != st2:
             problem.addConstraint(
                                 redMob,
@@ -154,10 +156,6 @@ for stC in studentsCR + studentsCX: #troublesome students
             ,(stC, st2)
             )
 
-#What happens if one is brother is troubled and the other is disabled??? Se sientan juntos con esta version... not sure si esta bien
-
-
-
 sol = problem.getSolution()
 sols = problem.getSolutions()
 
@@ -172,4 +170,5 @@ output.write("Number of solutions: {}\n".format(len(sols)))
 
 #print at least the first ten solutions (if they exist)
 for i in range(10):
-    if i <= len(sols) and sols != []: output.write(str(formatSol(sols[i])) + '\n')
+    if i < len(sols) and sols != []: 
+        output.write(str(formatSol(sols[i])) + '\n')
