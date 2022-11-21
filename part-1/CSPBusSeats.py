@@ -4,7 +4,8 @@ import numpy as np
 import sys
 
 NUMSEATS = 32
-lines = open(sys.argv[1], 'r').read().splitlines()
+with open(sys.argv[1], 'r') as f:
+    lines = f.read().splitlines()
 students = [elem.split(',') for elem in lines]
 
 #If there are more students than seats available
