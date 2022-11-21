@@ -107,27 +107,11 @@ for st in students:
     # If brothers are truly from the same year, add one pair of siblings to the dict 
     # (arbitrarily choose the pair with the key being associated to student with lower id)
     if st[0] not in oldBrothers and st[0] not in youngBrothers and st[0] < st[4]:
-        print(st[0], st[4])
-        print('a')
         siblings[st[0]] = st[4]
     else:
     # Else, if brothers were from different years, assign the younger as key so that we can identify later who to assign the window and aisle
         if st[0] in youngBrothers: 
-            print('b')
             siblings[st[0]] = st[4]
-
-print(siblings)
-# SIBLINGS RESTRICTION
-
-for sib in siblings.items(): 
-#   We need to check that none of the siblings are handicapped, since if one or both of them are, they cannot be seated together
-    if studentsDict[sib[0]][3] != 'R' and studentsDict[sib[1]][3] != 'R':
-        problem.addConstraint(
-            lambda young, old: (young % 4 == 1 and old == young+1) or (young % 4 == 0 and young == old +1),
-            # mod 4 == 1 means the seat is aligned with driver's window, therefore the old sibling's seat will be 1 unit bigger for it to be aisle
-            # mod 4 == 0 means the other window, therefore the old sibling's seat will be 1 unit lesser for it to be aisle
-            (sib[0], sib[1])
-        )
 
 #REDUCED MOBILITY RESTRICTION
 
@@ -145,6 +129,29 @@ for st1 in studentsXR+studentsCR: # iterate through the disabled students
                                 (st1, st2)
                                 ) #next seat to reduced mobility must be free
 
+# SIBLINGS RESTRICTION
+
+def sibs(seat1, seat2):
+    if seat1 % 4 == 1 or seat1 % 4 == 3: # odd seats
+        if seat2 == seat1 + 1: return True
+    else:                                # even seats
+        if seat1 == seat2 + 1: return True
+
+for sib in siblings.items(): 
+#   We need to check that none of the siblings are handicapped, since if one or both of them are, they cannot be seated together
+    if studentsDict[sib[0]][3] != 'R' and studentsDict[sib[1]][3] != 'R':
+        if sib[0] in youngBrothers:
+            problem.addConstraint(
+                lambda young, old: (young % 4 == 1 and old == young+1) or (young % 4 == 0 and young == old +1),
+                # mod 4 == 1 means the seat is aligned with driver's window, therefore the old sibling's seat will be 1 unit bigger for it to be aisle
+                # mod 4 == 0 means the other window, therefore the old sibling's seat will be 1 unit lesser for it to be aisle
+                (sib[0], sib[1])
+            )
+        else:
+            problem.addConstraint(
+                sibs,
+                (sib[0], sib[1])
+            )
 
 #TROUBLESOME STUDENTS RESTRICTION
 
