@@ -7,3 +7,5 @@ python3 CSPBusSeats.py CSP-tests/students33people.txt
 python3 CSPBusSeats.py CSP-tests/students_CXandXRsiblings.txt
 python3 CSPBusSeats.py CSP-tests/students_5TroubledSameYear.txt
 python3 CSPBusSeats.py CSP-tests/students_4troubledSameYear.txt
+python3 CSPBusSeats.py CSP-tests/studentsHighId.txt
+python3 CSPBusSeats.py CSP-tests/elo.txt

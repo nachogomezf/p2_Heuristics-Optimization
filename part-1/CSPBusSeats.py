@@ -116,7 +116,7 @@ for st in students:
 #REDUCED MOBILITY RESTRICTION
 
 def redMob(seat1, seat2):
-    if seat1 % 4 == 1 or seat1 % 4 == 3: # odd seats
+    if seat1 % 2 == 1: # odd seats
         if seat2 != seat1 + 1: return True
     else:                                # even seats
         if seat1 != seat2 + 1: return True
@@ -132,7 +132,7 @@ for st1 in studentsXR+studentsCR: # iterate through the disabled students
 # SIBLINGS RESTRICTION
 
 def sibs(seat1, seat2):
-    if seat1 % 4 == 1 or seat1 % 4 == 3: # odd seats
+    if seat1 % 2 == 1: # odd seats
         if seat2 == seat1 + 1: return True
     else:                                # even seats
         if seat1 == seat2 + 1: return True
@@ -164,6 +164,7 @@ for stC in studentsCR + studentsCX: #troublesome students
             )
 
 sol = problem.getSolution()
+print(sol)
 sols = problem.getSolutions()
 
 #function that sorts a dictionary by value
