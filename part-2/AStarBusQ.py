@@ -1,6 +1,5 @@
 import ast
 
-inf = float('inf')
 
 class Node:
     def __init__(self, student, seat):
@@ -10,7 +9,7 @@ class Node:
         self.seat = seat
         self.parent = None
         self.H = 0
-        self.G = -inf
+        self.G = 3 if self.disabled else 1
     
     def cost(self,other):
         return 3 if self.disabled else 1
