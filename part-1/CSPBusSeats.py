@@ -49,10 +49,10 @@ def seatPos(seat):
 fulldomain = [i for i in range(1,33)]
 
 domain1yr = [i for i in range(5,13)]
-domain1yrC = [i for i in range(1,5)] + [i for i in range(13,17)]
-domain1yrwithC = [i for i in range(1,17)]
+domain1yrR = [i for i in range(1,5)] + [i for i in range(13,17)]
+domain1yrwithR = [i for i in range(1,17)]
 
-domain2yrC = [i for i in range(17,21)]
+domain2yrR = [i for i in range(17,21)]
 domain2yr = [i for i in range(21,33)]
 
 #dictionary containing the students, with the keys being their ids'
@@ -90,13 +90,13 @@ students2CR = [st[0] for st in students if st[1] == '2' and st[2] == 'C' and st[
 
 problem = Problem()
 #adding 1st year normal and troublesome to the domain: "any seat in the front"
-problem.addVariables(students1XX + students1CX, domain1yrwithC)
+problem.addVariables(students1XX + students1CX, domain1yrwithR)
 #adding 1st year normal and troublesome to the domain: "any seat in the back"
-problem.addVariables(students2XX + students2CX, domain2yrC + domain2yr)
+problem.addVariables(students2XX + students2CX, domain2yrR + domain2yr)
 #adding 1st year handicapped (either normal or troublesome) to their special seats in the front
-problem.addVariables(students1XR + students1CR, domain1yrC)
+problem.addVariables(students1XR + students1CR, domain1yrR)
 #adding 2st year handicapped (either normal or troublesome) to their special seats in the back
-problem.addVariables(students2XR + students2CR, domain2yrC)
+problem.addVariables(students2XR + students2CR, domain2yrR)
 
 problem.addConstraint(AllDifferentConstraint())
 
