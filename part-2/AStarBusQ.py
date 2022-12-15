@@ -78,7 +78,9 @@ def astar(students):
 
     while openset:
         current = min(openset-closedset, key=lambda i : i.totalcost)
-        if current.state and (not current.remaining) and current.state[-1] != 'R': return openset, closedset, current
+        if current.state and (not current.remaining) and not current.state[-1].rm: 
+            print("last")
+            return openset, closedset, current
         openset.remove(current)
         closedset.add(current)
         for node in children(current): 
@@ -88,22 +90,22 @@ def astar(students):
 
 if __name__ == '__main__':
     start = time.time()
-    '''with open(sys.argv[1], 'r') as f:
-        data = f.read()'''
-    with open('students.prob', 'r') as f:
+    with open(sys.argv[1], 'r') as f:
         data = f.read()
     # reconstructing the data as a dictionary
     students = ast.literal_eval(data)
-    open, closed, result = astar(getStudents(students))
+    openset, closedset, result = astar(getStudents(students))
     end = time.time()
 
     res = {}
     for s in result.state:
+        print(s.id)
         res[s.id + ('C' if s.tr else 'X') + ('R' if s.rm else 'X')] = s.seat
 
     fname = "{}-{}".format(os.path.splitext(sys.argv[1])[0], sys.argv[2]) 
     with open(fname + '.output', 'w') as output:
-        output.write("INITIAL:\t{} \nFINAL:\t{}".format(data, res))
+        str = "INITIAL:\t{} \nFINAL:\t{}".format(data, res)
+        output.write(str)
 
     with open(fname + '.stat', 'w') as stat:
-        stat.write("Total time: {}\nPlan cost: {}\nExpanded nodes: {}\nPlan length: {}", end-start, result.cost, len(open), len(closed))
+        stat.write("Total time: {}\nPlan cost: {}\nExpanded nodes: {}\nPlan length: {}".format(end-start, result.cost, len(openset), len(closedset)))
