@@ -75,6 +75,8 @@ def getStudents(students):
 
 def children(node):
     res = []
+    # Mete los operadores y restri  cciones aqui
+    
     # here go the operators defined by the restrictions of the problem    
     # iterate through the remaining students and, if possible, generate a node with each of them (adding one student to the state list and removing it from the remaining list)
     for i in node.remaining:
@@ -110,6 +112,7 @@ def astar(students):
         for node in children(current): 
             openset.add(node)
             node.parent = current
+    raise(ValueError("Solution not found"))
             
 
 if __name__ == '__main__':
@@ -127,12 +130,10 @@ if __name__ == '__main__':
         print(s.id)
         res[s.id + ('C' if s.tr else 'X') + ('R' if s.rm else 'X')] = s.seat
 
-    # output file, with the information of the queue
     fname = "{}-{}".format(os.path.splitext(sys.argv[1])[0], sys.argv[2]) 
     with open(fname + '.output', 'w') as output:
         str = "INITIAL:\t{} \nFINAL:\t{}".format(data, res)
         output.write(str)
 
-    # stat file, with the information of the search
     with open(fname + '.stat', 'w') as stat:
         stat.write("Total time: {}\nPlan cost: {}\nExpanded nodes: {}\nPlan length: {}".format(end-start, result.cost, len(openset), len(closedset)))
