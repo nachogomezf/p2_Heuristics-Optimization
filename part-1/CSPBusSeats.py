@@ -164,7 +164,6 @@ for stC in studentsCR + studentsCX: #troublesome students
             )
 
 sol = problem.getSolution()
-print(sol)
 sols = problem.getSolutions()
 
 #function that sorts a dictionary by value
