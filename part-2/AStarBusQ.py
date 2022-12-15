@@ -50,9 +50,6 @@ class Node:
                         self.cost += 3
             prev = i
         self.parent = None
-        # ELIMINATE?
-        if self.parent:
-            self.cost += self.parent.cost
         self.totalcost = self.cost + self.heuristic
 
 class Student:
@@ -75,8 +72,6 @@ def getStudents(students):
 
 def children(node):
     res = []
-    # Mete los operadores y restri  cciones aqui
-    
     # here go the operators defined by the restrictions of the problem    
     # iterate through the remaining students and, if possible, generate a node with each of them (adding one student to the state list and removing it from the remaining list)
     for i in node.remaining:
@@ -102,8 +97,7 @@ def astar(students):
         # select the node with the minimum total cost (cost + heuristic) to expand
         current = min(openset-closedset, key=lambda i : i.totalcost)
         # if the remaining list of students is empty it means that we have reached the goal state. Here we also check that no reduced mobility student has been added last (without help to get in)
-        if current.state and (not current.remaining) and not current.state[-1].rm: 
-            print("last")
+        if current.state and not current.remaining and not current.state[-1].rm: 
             return openset, closedset, current
         # once the node has been expanded, we take it out of the open set and incude it into the closed set, so it cannot be expanded again
         openset.remove(current)
@@ -112,8 +106,7 @@ def astar(students):
         for node in children(current): 
             openset.add(node)
             node.parent = current
-    raise(ValueError("Solution not found"))
-            
+    return openset, closedset, Node([])            
 
 if __name__ == '__main__':
     start = time.time()
@@ -127,7 +120,6 @@ if __name__ == '__main__':
 
     res = {}
     for s in result.state:
-        print(s.id)
         res[s.id + ('C' if s.tr else 'X') + ('R' if s.rm else 'X')] = s.seat
 
     fname = "{}-{}".format(os.path.splitext(sys.argv[1])[0], sys.argv[2]) 
